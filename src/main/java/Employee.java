@@ -27,4 +27,19 @@ public class Employee {
                 id, name, salary, department
         );
     }
+    public String toCSV() {
+        return String.format("%d,%s,%.2f,%s", id, name, salary, department);
+    }
+
+    public static Employee fromCSV(String csvLine) {
+        String[] parts = csvLine.split(",");
+        if (parts.length != 4) {
+            throw new IllegalArgumentException("Invalid CSV line: " + csvLine);
+        }
+        int id = Integer.parseInt(parts[0].trim());
+        String name = parts[1].trim();
+        double salary = Double.parseDouble(parts[2].trim());
+        String dept = parts[3].trim();
+        return new Employee(id, name, salary, dept);
+    }
 }

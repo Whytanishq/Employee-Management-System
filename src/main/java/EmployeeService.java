@@ -1,11 +1,18 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.io.*;
 
 public class EmployeeService {
+    private static final String FILE_PATH = "employees.txt";
     private List<Employee> employees = new ArrayList<>();
     private Scanner scanner = new Scanner(System.in);
     private int nextEmployeeId =1;
+
+    public EmployeeService() {
+        loadEmployees();
+    }
+
     public void showMenu() {
         while (true) {
             System.out.println("\n====Employee System ====");
@@ -29,6 +36,32 @@ public class EmployeeService {
             }
         }
     }
+    private void loadEmployees() {
+        employees.clear();
+        File file = new File(FILE_PATH);
+        if (!file.exists()) return;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Employee emp = Employee.fromCSV(line);
+                employees.add(emp);
+                // Update nextEmployeeId if needed
+                if (emp.getId() >= nextEmployeeId) nextEmployeeId = emp.getId() + 1;
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading employees: " + e.getMessage());
+        }
+    }
+
+    private void saveEmployees() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE_PATH))) {
+            for (Employee emp : employees) {
+                pw.println(emp.toCSV());
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving employees: " + e.getMessage());
+        }
+    }
 
     private void addEmployee() {
         int id = nextEmployeeId++;
@@ -44,12 +77,8 @@ public class EmployeeService {
         String dept = scanner.nextLine();
 
         employees.add(new Employee(id, name, salary, dept));
+        saveEmployees();
         System.out.println("Employee added with ID: " + id + "\n");
-    }
-
-
-    private boolean isIdExists(int id) {
-        return employees.stream().anyMatch(e -> e.getId() == id);
     }
 
     private void viewEmployees() {
@@ -72,6 +101,7 @@ public class EmployeeService {
             if (emp.getId() == id) {
                 System.out.print("Enter new salary: ");
                 emp.setSalary(scanner.nextDouble());
+                saveEmployees();
                 System.out.println("Salary updated.\n");
                 return;
             }
@@ -86,6 +116,7 @@ public class EmployeeService {
         for (int i = 0; i < employees.size(); i++) {
             if (employees.get(i).getId() == id) {
                 employees.remove(i);
+                saveEmployees();
                 System.out.println("Employee deleted.\n");
                 return;
             }
