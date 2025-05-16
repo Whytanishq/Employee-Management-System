@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class EmployeeService {
     private List<Employee> employees = new ArrayList<>();
     private Scanner scanner = new Scanner(System.in);
-
+    private int nextEmployeeId =1;
     public void showMenu() {
         while (true) {
             System.out.println("\n====Employee System ====");
@@ -31,16 +31,9 @@ public class EmployeeService {
     }
 
     private void addEmployee() {
-        System.out.print("\nEnter Employee ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
+        int id = nextEmployeeId++;
 
-        if (isIdExists(id)) {
-            System.out.println("Error: Employee ID already exists!\n");
-            return;
-        }
-
-        System.out.print("Enter Name: ");
+        System.out.print("\nEnter Name: ");
         String name = scanner.nextLine();
 
         System.out.print("Enter Salary: ");
@@ -51,8 +44,9 @@ public class EmployeeService {
         String dept = scanner.nextLine();
 
         employees.add(new Employee(id, name, salary, dept));
-        System.out.println("Employee added\n");
+        System.out.println("Employee added with ID: " + id + "\n");
     }
+
 
     private boolean isIdExists(int id) {
         return employees.stream().anyMatch(e -> e.getId() == id);
